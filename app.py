@@ -32,7 +32,7 @@ if uploaded_file is not None:
 
     st.subheader("Prediction Result")
 
-    if prediction > 0.5:
+    if prediction > 0.7:
         st.error(f"Cancer Detected (Confidence: {prediction:.2f})")
     else:
         st.success(f"Normal (Confidence: {1 - prediction:.2f})")
