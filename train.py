@@ -8,11 +8,11 @@ batch_size = 16
 # Data generators
 train_datagen = ImageDataGenerator(
     rescale=1./255,
-    rotation_range=10,
-    zoom_range=0.1,
-    horizontal_flip=True
+    rotation_range=15,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    brightness_range=[0.8,1.2]
 )
-
 val_datagen = ImageDataGenerator(rescale=1./255)
 
 # Load training data
@@ -37,10 +37,12 @@ base_model = tf.keras.applications.MobileNetV2(
     include_top=False,
     weights="imagenet"
 )
+base_model.trainable = True
 
-# Freeze base model
-base_model.trainable = False
-
+# Freeze only early layers
+for layer in base_model.layers[:100]:
+    layer.trainable = False
+    
 # Build model
 model = tf.keras.Sequential([
     base_model,
@@ -49,18 +51,16 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(1, activation="sigmoid")
 ])
 
-# Compile model
 model.compile(
-    optimizer="adam",
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
     loss="binary_crossentropy",
     metrics=["accuracy"]
 )
-
 # Train model
 model.fit(
     train_data,
     validation_data=val_data,
-    epochs=3
+    epochs=10
 )
 
 # Save model
